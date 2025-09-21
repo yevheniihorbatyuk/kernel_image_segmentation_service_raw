@@ -5,18 +5,22 @@ import {
   Typography,
   Button,
   Chip,
-  CircularProgress,
-  LinearProgress
+  CircularProgress
 } from '@mui/material';
 import {
   PlayArrow,
-  Stop,
   Refresh,
-  GetApp
+  GetApp,
+  History,
+  PhotoSizeSelectActual,
+  Save
 } from '@mui/icons-material';
 import { useSegmentation } from '../../hooks/useSegmentation';
 import { useImageStore } from '../../stores/imageStore';
 import { useUIStore } from '../../stores/uiStore';
+import { ImageHistory } from '../history/ImageHistory';
+import { ResultHistory } from '../history/ResultHistory';
+import { SessionManager } from '../history/SessionManager';
 
 export const Header: React.FC = () => {
   const {
@@ -29,6 +33,11 @@ export const Header: React.FC = () => {
 
   const { currentImage } = useImageStore();
   const { addToast } = useUIStore();
+
+  // Стейти для модальних вікон
+  const [imageHistoryOpen, setImageHistoryOpen] = React.useState(false);
+  const [resultHistoryOpen, setResultHistoryOpen] = React.useState(false);
+  const [sessionManagerOpen, setSessionManagerOpen] = React.useState(false);
 
   const canProcess = currentImage && activeAlgorithms.length > 0 && !isProcessing;
 
@@ -62,7 +71,6 @@ export const Header: React.FC = () => {
       return;
     }
 
-    // Create export data
     const exportData = {
       timestamp: new Date().toISOString(),
       image: {
@@ -82,7 +90,6 @@ export const Header: React.FC = () => {
       }))
     };
 
-    // Download as JSON
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
       type: 'application/json'
     });
@@ -102,77 +109,119 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        mb: 3,
-        p: 3,
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        boxShadow: 1
-      }}
-    >
-      <Box>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Image Segmentation
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-          {currentImage && (
-            <Chip 
-              label={`Image: ${currentImage.original_filename}`} 
-              color="success" 
-              variant="outlined" 
-            />
-          )}
-          {activeAlgorithms.length > 0 && (
-            <Chip 
-              label={`${activeAlgorithms.length} algorithm${activeAlgorithms.length !== 1 ? 's' : ''} selected`}
-              color="primary" 
-              variant="outlined" 
-            />
-          )}
-          {results.length > 0 && (
-            <Chip 
-              label={`${results.length} result${results.length !== 1 ? 's' : ''}`}
-              color="secondary" 
-              variant="outlined" 
-            />
-          )}
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 3,
+          p: 3,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          boxShadow: 1
+        }}
+      >
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Image Segmentation
+          </Typography>
+          <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+            {currentImage && (
+              <Chip 
+                label={`Image: ${currentImage.original_filename}`} 
+                color="success" 
+                variant="outlined" 
+              />
+            )}
+            {activeAlgorithms.length > 0 && (
+              <Chip 
+                label={`${activeAlgorithms.length} algorithm${activeAlgorithms.length !== 1 ? 's' : ''} selected`}
+                color="primary" 
+                variant="outlined" 
+              />
+            )}
+            {results.length > 0 && (
+              <Chip 
+                label={`${results.length} result${results.length !== 1 ? 's' : ''}`}
+                color="secondary" 
+                variant="outlined" 
+              />
+            )}
+          </Box>
+        </Box>
+
+        <Box display="flex" alignItems="center" gap={2}>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={isProcessing ? <CircularProgress size={20} color="inherit" /> : <PlayArrow />}
+            onClick={handleStartProcessing}
+            disabled={!canProcess}
+            color="primary"
+          >
+            {isProcessing ? 'Processing...' : 'Start Segmentation'}
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={handleClearResults}
+            disabled={results.length === 0 || isProcessing}
+          >
+            Clear Results
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<GetApp />}
+            onClick={handleExportResults}
+            disabled={results.length === 0}
+          >
+            Export Results
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<History />}
+            onClick={() => setImageHistoryOpen(true)}
+          >
+            Images
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<PhotoSizeSelectActual />}
+            onClick={() => setResultHistoryOpen(true)}
+          >
+            Results
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<Save />}
+            onClick={() => setSessionManagerOpen(true)}
+          >
+            Sessions
+          </Button>
         </Box>
       </Box>
 
-      <Box display="flex" alignItems="center" gap={2}>
-        <Button
-          variant="contained"
-          size="large"
-          startIcon={isProcessing ? <CircularProgress size={20} color="inherit" /> : <PlayArrow />}
-          onClick={handleStartProcessing}
-          disabled={!canProcess}
-          color="primary"
-        >
-          {isProcessing ? 'Processing...' : 'Start Segmentation'}
-        </Button>
-
-        <Button
-          variant="outlined"
-          startIcon={<Refresh />}
-          onClick={handleClearResults}
-          disabled={results.length === 0 || isProcessing}
-        >
-          Clear Results
-        </Button>
-
-        <Button
-          variant="outlined"
-          startIcon={<GetApp />}
-          onClick={handleExportResults}
-          disabled={results.length === 0}
-        >
-          Export Results
-        </Button>
-      </Box>
-    </Box>
+      {/* History Dialogs */}
+      <ImageHistory 
+        open={imageHistoryOpen} 
+        onClose={() => setImageHistoryOpen(false)} 
+      />
+      
+      <ResultHistory 
+        open={resultHistoryOpen} 
+        onClose={() => setResultHistoryOpen(false)} 
+      />
+      
+      <SessionManager 
+        open={sessionManagerOpen} 
+        onClose={() => setSessionManagerOpen(false)} 
+      />
+    </>
   );
 };
