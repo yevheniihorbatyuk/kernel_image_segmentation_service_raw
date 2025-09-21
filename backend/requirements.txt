@@ -1,0 +1,57 @@
+# FastAPI and Core Dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database and Caching
+psycopg2-binary
+sqlalchemy==2.0.23
+alembic==1.13.1
+asyncpg==0.29.0  # PostgreSQL async driver
+redis==5.0.1
+hiredis==2.2.3   # Redis performance boost
+
+# Image Processing and ML
+scikit-image==0.22.0
+opencv-python-headless==4.8.1.78
+numpy==1.25.2
+pillow==10.1.0
+matplotlib==3.8.2
+
+# WebSockets and Real-time
+python-socketio==5.10.0
+websockets==12.0
+wsproto
+
+# File Handling
+python-multipart==0.0.6
+aiofiles==23.2.1
+
+# Utilities and Performance
+python-jose[cryptography]==3.3.0  # JWT tokens
+passlib[bcrypt]==1.7.4            # Password hashing
+python-dotenv==1.0.0              # Environment variables
+structlog==23.2.0                 # Structured logging
+prometheus-client==0.19.0         # Metrics
+psutil==5.9.6                     # System monitoring
+
+# Development and Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2                     # HTTP client for testing
+factory-boy==3.3.0               # Test data generation
+
+# Code Quality
+black==23.11.0                    # Code formatter
+isort==5.12.0                     # Import sorter
+flake8==6.1.0                     # Linting
+mypy==1.7.1                       # Type checking
+
+# Security
+cryptography==41.0.7
+
+# Optional: Advanced ML features
+# scipy==1.11.4                   # Scientific computing
+# networkx==3.2.1                 # Graph algorithms for segmentation
