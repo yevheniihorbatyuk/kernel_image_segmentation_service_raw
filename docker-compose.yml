@@ -24,7 +24,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./services/postgres/postgres_data:/var/lib/postgresql/data
       - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - segmentation_network
@@ -47,7 +47,7 @@ services:
       - MAX_FILE_SIZE=10485760  # 10MB
     volumes:
       - ./backend:/app
-      - backend_uploads:/app/uploads
+      - ./services/backend/backend_uploads:/app/uploads
     depends_on:
       - redis
       - postgres
