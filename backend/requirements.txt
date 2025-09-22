@@ -5,7 +5,7 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # Database and Caching
-psycopg2-binary
+# psycopg2-binary
 sqlalchemy==2.0.23
 alembic==1.13.1
 asyncpg==0.29.0  # PostgreSQL async driver
@@ -13,7 +13,7 @@ redis==5.0.1
 hiredis==2.2.3   # Redis performance boost
 
 # Image Processing and ML
-scikit-image==0.22.0
+scikit-image==0.25.0
 opencv-python-headless==4.8.1.78
 numpy==1.25.2
 pillow==10.1.0

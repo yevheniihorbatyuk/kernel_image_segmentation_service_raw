@@ -7,6 +7,7 @@ import psutil
 from skimage.feature import peak_local_max
 from skimage.filters import sobel
 from scipy import ndimage as ndi
+from skimage.segmentation import watershed  # Додано імпорт watershed
 
 from .base import BaseSegmentationAlgorithm, SegmentationMetrics
 
@@ -49,11 +50,13 @@ class WatershedAlgorithm(BaseSegmentationAlgorithm):
         # Generate markers using local maxima
         markers_count = parameters.get("markers", 250)
         
-        # Find local maxima as markers
-        local_maxima = peak_local_maxima(-elevation, min_distance=10, num_peaks=markers_count)
+        # Find local maxima as markers using correct function and syntax
+        local_maxima = peak_local_max(elevation, min_distance=10, num_peaks=markers_count, exclude_border=False)
         markers = np.zeros_like(gray_image, dtype=int)
-        for i, (y, x) in enumerate(zip(local_maxima[0], local_maxima[1])):
-            markers[y, x] = i + 1
+        
+        # Use correct indexing to assign markers
+        for i, coords in enumerate(local_maxima):
+            markers[tuple(coords)] = i + 1
         
         # Apply watershed
         labels = watershed(
