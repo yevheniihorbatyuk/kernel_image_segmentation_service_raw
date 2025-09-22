@@ -1,22 +1,31 @@
-// src/components/layout/ViewModeToggle.tsx
-import React from 'react';
+// src/components/layout/ViewModeToggle.tsx - ENHANCED VERSION
+import React, { useState } from 'react';
 import {
   ToggleButtonGroup,
   ToggleButton,
   Tooltip,
-  Box
+  Box,
+  Button,
+  Divider
 } from '@mui/material';
 import {
   CropFree,
   ViewColumn,
-  GridView
+  GridView,
+  Compare
 } from '@mui/icons-material';
 import { useViewMode } from '../../hooks/useViewMode';
+import { useSegmentationStore } from '../../stores/segmentationStore';
+import { useUIStore } from '../../stores/uiStore';
 import { ViewMode } from '../../types/segmentation';
 import { VIEW_MODES } from '../../utils/constants';
+import { AdvancedSplitView } from '../comparison/AdvancedSplitView';
 
 export const ViewModeToggle: React.FC = () => {
   const { viewMode, setViewMode } = useViewMode();
+  const { results } = useSegmentationStore();
+  const { addToast } = useUIStore();
+  const [splitViewOpen, setSplitViewOpen] = useState(false);
 
   const handleViewModeChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -25,6 +34,17 @@ export const ViewModeToggle: React.FC = () => {
     if (newViewMode !== null) {
       setViewMode(newViewMode);
     }
+  };
+
+  const handleOpenAdvancedSplit = () => {
+    if (results.length === 0) {
+      addToast({
+        type: 'warning',
+        message: 'Process some images first to enable advanced comparison'
+      });
+      return;
+    }
+    setSplitViewOpen(true);
   };
 
   const getIcon = (mode: ViewMode) => {
@@ -41,7 +61,7 @@ export const ViewModeToggle: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+    <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
       <ToggleButtonGroup
         value={viewMode}
         exclusive
@@ -73,6 +93,44 @@ export const ViewModeToggle: React.FC = () => {
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
+
+      <Divider 
+        orientation="vertical" 
+        flexItem 
+        sx={{ 
+          borderColor: 'rgba(255, 255, 255, 0.3)',
+          mx: 0.5 
+        }} 
+      />
+
+      <Tooltip title="Advanced Image Comparison">
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<Compare />}
+          onClick={handleOpenAdvancedSplit}
+          disabled={results.length === 0}
+          sx={{
+            color: 'inherit',
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+            },
+            '&.Mui-disabled': {
+              color: 'rgba(255, 255, 255, 0.3)',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+            }
+          }}
+        >
+          Compare
+        </Button>
+      </Tooltip>
+
+      <AdvancedSplitView
+        open={splitViewOpen}
+        onClose={() => setSplitViewOpen(false)}
+      />
     </Box>
   );
 };
